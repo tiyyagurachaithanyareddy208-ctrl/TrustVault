@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server';
 import { requireAuthenticatedUser } from '@/lib/auth/authorization';
 import { jsonSuccess, handleApiError } from '@/lib/api-response';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     const user = await requireAuthenticatedUser(req);

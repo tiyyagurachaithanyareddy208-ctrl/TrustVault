@@ -7,6 +7,8 @@ import { recordAuditEvent } from '@/lib/audit/audit-service';
 import { AUDIT_ACTIONS, AUDIT_OUTCOMES, ROLES } from '@/lib/constants';
 import { jsonSuccess, jsonError, handleApiError } from '@/lib/api-response';
 
+export const dynamic = 'force-dynamic';
+
 const UpdateUserSchema = z.object({
   role: z.enum([ROLES.ADMINISTRATOR, ROLES.DOCUMENT_OWNER, ROLES.VIEWER]).optional(),
   isActive: z.boolean().optional(),

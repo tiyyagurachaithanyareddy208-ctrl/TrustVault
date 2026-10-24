@@ -3,6 +3,8 @@ import { requireAuthenticatedUser, requireDocumentOwner } from '@/lib/auth/autho
 import { prisma } from '@/lib/db';
 import { jsonSuccess, handleApiError } from '@/lib/api-response';
 
+export const dynamic = 'force-dynamic';
+
 interface RouteParams {
   params: { id: string };
 }

@@ -6,6 +6,8 @@ import { recordAuditEvent } from '@/lib/audit/audit-service';
 import { AUDIT_ACTIONS, AUDIT_OUTCOMES, PERMISSIONS } from '@/lib/constants';
 import { jsonSuccess, jsonError, handleApiError } from '@/lib/api-response';
 
+export const dynamic = 'force-dynamic';
+
 const CreatePermissionSchema = z.object({
   granteeEmail: z.string().email(),
   permission: z.enum([PERMISSIONS.READ, PERMISSIONS.EDIT]),

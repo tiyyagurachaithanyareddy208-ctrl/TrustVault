@@ -7,6 +7,8 @@ import { storage, computeSha256, generateStorageKey } from '@/lib/storage/storag
 import { recordAuditEvent } from '@/lib/audit/audit-service';
 import { jsonSuccess, jsonError, handleApiError } from '@/lib/api-response';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     const user = await requireAuthenticatedUser(req);

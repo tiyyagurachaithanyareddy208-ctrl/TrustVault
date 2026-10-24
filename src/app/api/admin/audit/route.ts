@@ -3,6 +3,8 @@ import { requireAuthenticatedUser, requireAdministrator } from '@/lib/auth/autho
 import { prisma } from '@/lib/db';
 import { jsonSuccess, handleApiError } from '@/lib/api-response';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     const user = await requireAuthenticatedUser(req);

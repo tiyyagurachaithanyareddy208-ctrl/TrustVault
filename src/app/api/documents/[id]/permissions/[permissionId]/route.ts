@@ -5,6 +5,8 @@ import { recordAuditEvent } from '@/lib/audit/audit-service';
 import { AUDIT_ACTIONS, AUDIT_OUTCOMES } from '@/lib/constants';
 import { jsonSuccess, jsonError, handleApiError } from '@/lib/api-response';
 
+export const dynamic = 'force-dynamic';
+
 interface RouteParams {
   params: { id: string; permissionId: string };
 }

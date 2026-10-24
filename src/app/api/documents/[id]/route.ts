@@ -12,6 +12,8 @@ import { recordAuditEvent } from '@/lib/audit/audit-service';
 import { AUDIT_ACTIONS, AUDIT_OUTCOMES, DOCUMENT_CATEGORIES } from '@/lib/constants';
 import { jsonSuccess, jsonError, handleApiError } from '@/lib/api-response';
 
+export const dynamic = 'force-dynamic';
+
 const UpdateDocumentSchema = z.object({
   title: z.string().min(1).max(255).optional(),
   description: z.string().max(1000).nullable().optional(),

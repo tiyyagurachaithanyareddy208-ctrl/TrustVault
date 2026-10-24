@@ -4,6 +4,8 @@ import { prisma } from '@/lib/db';
 import { verifyAuditChain } from '@/lib/audit/audit-service';
 import { jsonSuccess, handleApiError } from '@/lib/api-response';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     const user = await requireAuthenticatedUser(req);

@@ -5,6 +5,8 @@ import { recordAuditEvent } from '@/lib/audit/audit-service';
 import { AUDIT_ACTIONS, AUDIT_OUTCOMES } from '@/lib/constants';
 import { handleApiError } from '@/lib/api-response';
 
+export const dynamic = 'force-dynamic';
+
 interface RouteParams {
   params: { id: string };
 }
@@ -42,7 +44,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
     // Sanitize filename for Content-Disposition header
     const safeHeaderFilename = encodeURIComponent(doc.originalFilename);
 
-    return new NextResponse(fileBuffer, {
+    return new NextResponse(new Uint8Array(fileBuffer), {
       status: 200,
       headers: {
         'Content-Type': doc.mimeType,

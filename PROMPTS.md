@@ -37,3 +37,21 @@ This living development log records architectural prompts, generated solutions, 
   Executed `tests/audit.test.ts` verifying 100% chain validity, payload tampering detection, intermediate event deletion detection, and sequence gap detection.
 
 ---
+
+### Entry 3: 2026-10-24 — Deny-by-Default Server Authorization & Insecure Direct Object Reference Defense
+- **Task / Prompt Given to AI**:
+  Implement centralized server-side authorization enforcement across all document routes (read, download, edit, delete, grant, revoke). Ensure that knowing a document ID, URL, filename, or storage key never grants unauthorized access, and that administrators have no automatic read/download bypass.
+- **Generated Solution**:
+  Developed `src/lib/auth/authorization.ts` enforcing `requireAuthenticatedUser`, `requireDocumentReadAccess`, `requireDocumentDownloadAccess`, and `requireDocumentOwner`. Integrated uniform 404 response strategy for unpermitted resources to prevent resource enumeration.
+- **Specific Errors, Weaknesses, or Assumptions Found**:
+  1. *Resource Enumeration via 403 vs 404*: Initial designs often return 403 Forbidden for existing records, which immediately informs an attacker that a guessed UUID exists.
+  2. *Administrative Bypass Vulnerability*: In conventional multi-tenant apps, admin roles often shortcut access rules. If an administrator is granted a silent document read bypass, confidential executive documents are exposed without owner consent.
+  3. *Immediate Revocation Guarantee*: Cached permissions or persistent download tokens can allow access after an owner revokes a grant.
+- **How Corrected**:
+  Enforced strict 404 Not Found responses for inaccessible documents. Specifically validated that administrators cannot download or read unshared documents without explicit grants. Verified that deleting a permission grant from the database immediately blocks the next read/download request with zero grace period.
+- **Real Git Commit Reference**:
+  `68d067b`
+- **Verification**:
+  Executed 29 automated tests across `tests/authorization.test.ts`, `tests/admin.test.ts`, `tests/auth.test.ts`, `tests/upload.test.ts`, `tests/audit.test.ts`, and `tests/regression.test.ts` with 100% pass rate.
+
+---
