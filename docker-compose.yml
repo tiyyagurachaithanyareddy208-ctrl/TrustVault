@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: trustvault-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-trustvault_secure_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-trustvault}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d trustvault"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - trustvault-net
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: trustvault-app
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-trustvault_secure_pass}@db:5432/${POSTGRES_DB:-trustvault}?schema=public"
+      SESSION_SECRET: ${SESSION_SECRET:-e9b2512f71f11a49c6934c2ee347644f126f554030614e861d81a95449557ea7}
+      NODE_ENV: production
+      STORAGE_DRIVER: local
+      LOCAL_STORAGE_DIR: /app/storage/vault_files
+      MAX_FILE_SIZE_BYTES: 26214400
+    volumes:
+      - vault_storage:/app/storage/vault_files
+    networks:
+      - trustvault-net
+
+volumes:
+  postgres_data:
+    driver: local
+  vault_storage:
+    driver: local
+
+networks:
+  trustvault-net:
+    driver: bridge

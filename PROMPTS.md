@@ -55,3 +55,38 @@ This living development log records architectural prompts, generated solutions, 
   Executed 29 automated tests across `tests/authorization.test.ts`, `tests/admin.test.ts`, `tests/auth.test.ts`, `tests/upload.test.ts`, `tests/audit.test.ts`, and `tests/regression.test.ts` with 100% pass rate.
 
 ---
+
+### Entry 4: 2026-10-24 — Production Next.js Streaming Types and Dynamic Route Compilation
+- **Task / Prompt Given to AI**:
+  Construct the complete enterprise web UI (Dashboard, Document Library with filters, Document Details with SHA-256 inspection, Share Dialog, Admin Console, and Audit Log Explorer) and compile an optimized production Next.js build.
+- **Generated Solution**:
+  Built modular App Router pages with responsive deep-navy enterprise styling, Lucide icons, client-side Auth Context, and quick-persona switching for security evaluation.
+- **Specific Errors, Weaknesses, or Assumptions Found**:
+  1. *Streaming Buffer Type Mismatch*: In `GET /api/documents/[id]/download`, passing a raw Node.js `Buffer` directly to `new NextResponse(fileBuffer)` caused TypeScript build failure (`Argument of type 'Buffer' is not assignable to parameter of type 'BodyInit'`).
+  2. *Static Prerendering of Dynamic Security Routes*: During static page generation, Next.js attempted to prerender routes that consume request cookies and authorization headers without explicit dynamic declaration (`DYNAMIC_SERVER_USAGE` bailing).
+  3. *Client-side `useSearchParams()` CSR Bailout*: Pages using URL search queries (`/documents` and `/documents/[id]`) triggered prerendering bails because they were not isolated in `<Suspense>` boundaries.
+- **How Corrected**:
+  Converted file payload to standard `new Uint8Array(fileBuffer)` for binary streaming responses. Added `export const dynamic = 'force-dynamic'` across all authentication and authorized API endpoints. Wrapped client query components inside React `<Suspense>` boundaries.
+- **Real Git Commit Reference**:
+  `f851499`
+- **Verification**:
+  Successfully compiled production bundle via `next build` generating clean static and server-rendered dynamic routes; re-executed all 29 automated security tests.
+
+---
+
+### Entry 5: 2026-10-24 — Fail-Closed Mutation Integrity, Security Architecture & Threat Model Verification
+- **Task / Prompt Given to AI**:
+  Formulate the full comprehensive threat model (`THREATS.md`), complete REST API specification (`API.md`), production Docker deployment assets (`Dockerfile`, `docker-compose.yml`), and engineering documentation (`README.md`). Ensure that critical security operations enforce fail-closed semantics if audit persistence fails.
+- **Generated Solution**:
+  Created threat specifications for 22+ attack vectors, implemented `failClosed: true` policy on critical document deletions and permission mutations throwing `AuditPersistenceError`, authored multi-stage Dockerfile with non-root security user, and established Docker Compose setup.
+- **Specific Errors, Weaknesses, or Assumptions Found**:
+  1. *Fail-Open Risk*: In typical web apps, if an audit write fails due to transient database contention, the application logs a warning and proceeds with the permission grant or deletion. In a zero-trust compliance environment, this creates an unmonitored security mutation.
+  2. *Audit Chain Concurrency Assumption*: Assuming standard autoincrement sequence numbers will always be contiguous under high concurrency.
+- **How Corrected**:
+  Enforced strict database transactions wrapping `AuditChainHead` and `AuditEvent`. In `recordAuditEvent`, critical actions (`PERMISSION_GRANT`, `PERMISSION_REVOKE`, `DOCUMENT_DELETE`, `USER_STATUS_CHANGE`) throw `AuditPersistenceError`, causing the entire database transaction to roll back if the audit log cannot be immutably written.
+- **Real Git Commit Reference**:
+  `51d8b94`
+- **Verification**:
+  Executed automated test suite confirming fail-closed error propagation and hash chain continuity; verified Docker configuration and multi-stage container build instructions.
+
+---
