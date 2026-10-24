@@ -1,0 +1,36 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Testing
+coverage
+
+# Next.js build output
+.next/
+out/
+build
+
+# Misc
+.DS_Store
+*.pem
+
+# Local env files
+.env*.local
+.env
+
+# Storage files (private storage vault in local development)
+storage/vault_files/*
+!storage/vault_files/.gitkeep
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# SQLite local database files
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+prisma/*.db
+prisma/*.db-journal
