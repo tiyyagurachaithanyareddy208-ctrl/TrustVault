@@ -201,3 +201,12 @@ npm run start
 1. **Database Hash Chain Trust Boundary**: A database-resident hash chain guarantees detection of unauthorized modification or record deletion by application users or unprivileged database connections. However, an attacker with full root SQL database control who recalculates all subsequent hashes could rewrite history unless the chain head is periodically anchored externally (e.g. independently controlled immutable S3 bucket or external timestamping authority).
 2. **File Signature Validation**: Magic-byte verification detects MIME spoofing (e.g. executables renamed to `.pdf`). However, it does not replace an enterprise antivirus sandbox (such as ClamAV or VirusTotal API), which should be added to the upload pipeline in regulated environments.
 3. **Local Private Storage Adapter**: The default storage adapter writes to `./storage/vault_files` outside the web root with restricted permissions (`0600`). For multi-server cloud deployments, configure an S3-compatible private object store.
+
+---
+
+## 11. Live URL & Active Demonstration
+
+- **Live Public URL**: [https://bar-arlington-insider-vessels.trycloudflare.com](https://bar-arlington-insider-vessels.trycloudflare.com)
+- **Local URL**: [http://localhost:3000](http://localhost:3000)
+- **Status**: Live & Serving (Validated via automated HTTP checks)
+- **Evaluation**: Click any of the 1-click demo persona quick-fill buttons on the login screen to test Administrator, Owner A, Owner B, Viewer A, and Viewer B.
