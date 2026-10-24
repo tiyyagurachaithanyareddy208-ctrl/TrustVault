@@ -1,0 +1,124 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                  String               @id @default(uuid())
+  email               String               @unique
+  passwordHash        String
+  name                String
+  role                String               @default("VIEWER") // ADMINISTRATOR, DOCUMENT_OWNER, VIEWER
+  isActive            Boolean              @default(true)
+  failedLoginAttempts Int                  @default(0)
+  lockedUntil         DateTime?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  documents           Document[]           @relation("DocumentOwner")
+  permissions         DocumentPermission[] @relation("UserPermissions")
+  grantedPermissions  DocumentPermission[] @relation("GrantedPermissions")
+  auditEvents         AuditEvent[]         @relation("UserAuditEvents")
+  sessions            Session[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model Session {
+  id           String    @id @default(uuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token        String    @unique
+  expiresAt    DateTime
+  createdAt    DateTime  @default(now())
+  lastActiveAt DateTime  @default(now())
+  userAgent    String?
+  ipAddress    String?
+  revoked      Boolean   @default(false)
+
+  @@index([token])
+  @@index([userId])
+}
+
+model Document {
+  id               String               @id @default(uuid())
+  title            String
+  originalFilename String
+  description      String?
+  category         String               @default("GENERAL") // FINANCIAL, LEGAL, HR, SECURITY, OPERATIONS, GENERAL
+  mimeType         String
+  fileSize         Int
+  sha256Hash       String
+  storageKey       String               @unique // Opaque internal storage key
+  ownerId          String
+  owner            User                 @relation("DocumentOwner", fields: [ownerId], references: [id], onDelete: Restrict)
+  isDeleted        Boolean              @default(false)
+  deletedAt        DateTime?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  permissions      DocumentPermission[]
+  auditEvents      AuditEvent[]
+
+  @@index([ownerId])
+  @@index([isDeleted])
+  @@index([category])
+}
+
+model DocumentPermission {
+  id          String   @id @default(uuid())
+  documentId  String
+  document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  granteeId   String
+  grantee     User     @relation("UserPermissions", fields: [granteeId], references: [id], onDelete: Cascade)
+  grantedById String
+  grantedBy   User     @relation("GrantedPermissions", fields: [grantedById], references: [id], onDelete: Restrict)
+  permission  String   // READ, EDIT
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([documentId, granteeId])
+  @@index([granteeId])
+  @@index([documentId])
+}
+
+model AuditEvent {
+  id            String    @id @default(uuid())
+  sequence      Int       @unique
+  timestamp     DateTime  @default(now())
+  actorId       String?
+  actor         User?     @relation("UserAuditEvents", fields: [actorId], references: [id], onDelete: SetNull)
+  actorEmail    String?
+  actorRole     String?
+  action        String
+  targetType    String    // DOCUMENT, USER, SESSION, PERMISSION, SYSTEM
+  targetId      String?
+  outcome       String    // SUCCESS, DENIED
+  correlationId String
+  ipAddress     String?
+  userAgent     String?
+  metadata      String    // Sanitized JSON string
+  prevHash      String
+  currentHash   String
+  documentId    String?
+  document      Document? @relation(fields: [documentId], references: [id], onDelete: SetNull)
+
+  @@index([sequence])
+  @@index([actorId])
+  @@index([action])
+  @@index([outcome])
+  @@index([timestamp])
+  @@index([documentId])
+}
+
+model AuditChainHead {
+  id           String   @id
+  lastSequence Int      @default(0)
+  lastHash     String   @default("0000000000000000000000000000000000000000000000000000000000000000")
+  updatedAt    DateTime @updatedAt
+}
