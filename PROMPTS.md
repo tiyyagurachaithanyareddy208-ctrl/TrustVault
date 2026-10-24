@@ -85,7 +85,7 @@ This living development log records architectural prompts, generated solutions, 
 - **How Corrected**:
   Enforced strict database transactions wrapping `AuditChainHead` and `AuditEvent`. In `recordAuditEvent`, critical actions (`PERMISSION_GRANT`, `PERMISSION_REVOKE`, `DOCUMENT_DELETE`, `USER_STATUS_CHANGE`) throw `AuditPersistenceError`, causing the entire database transaction to roll back if the audit log cannot be immutably written.
 - **Real Git Commit Reference**:
-  `51d8b94`
+  `a0a4e21`
 - **Verification**:
   Executed automated test suite confirming fail-closed error propagation and hash chain continuity; verified Docker configuration and multi-stage container build instructions.
 
