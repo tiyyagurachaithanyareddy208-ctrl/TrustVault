@@ -20,3 +20,20 @@ This living development log records architectural prompts, generated solutions, 
   Executed `argon2.hash()` generating valid `$argon2id$v=19$m=65536...` hashes; validated Prisma CLI and Vitest CLI execution.
 
 ---
+
+### Entry 2: 2026-10-24 — Cryptographic Hash-Chained Audit Trail & Foreign Key Actor Desynchronization
+- **Task / Prompt Given to AI**:
+  Implement the tamper-evident audit logging service (`recordAuditEvent`, `computeBlockHash`, `verifyAuditChain`) maintaining a strictly monotonic SHA-256 hash chain with database concurrency control and fail-closed persistence on critical operations.
+- **Generated Solution**:
+  Built `src/lib/audit/audit-service.ts` with serialized transactions over `AuditChainHead`, calculating $H_n = \text{SHA-256}(Payload_n \mathbin{\Vert} H_{n-1})$. Implemented `verifyAuditChain()` to recompute every block's cryptographic hash.
+- **Specific Errors, Weaknesses, or Assumptions Found**:
+  1. *Foreign Key Violation*: The initial implementation attempted to directly write untrusted `payload.actorId` into `AuditEvent.actorId`. When recording security telemetry for unauthenticated actors (e.g. failed login attempts with non-existent user IDs), the database foreign key constraint threw a constraint violation.
+  2. *Canonical Hash Desynchronization*: In attempting to fix the foreign key violation by setting `actorId: resolvedActorId` (null), `computeBlockHash` had computed the hash using the original unpersisted `payload.actorId`, whereas `verifyAuditChain` recomputed it using `ev.actorId || 'SYSTEM_ANONYMOUS'`, causing verification to fail on unauthenticated events.
+- **How Corrected**:
+  Updated `recordAuditEvent` to resolve `resolvedActorId` prior to computing the block hash. Standardized canonical serialization across both writer and verifier to strictly use `resolvedActorId || payload.actorEmail || 'SYSTEM_ANONYMOUS'`.
+- **Real Git Commit Reference**:
+  `46fde56`
+- **Verification**:
+  Executed `tests/audit.test.ts` verifying 100% chain validity, payload tampering detection, intermediate event deletion detection, and sequence gap detection.
+
+---
