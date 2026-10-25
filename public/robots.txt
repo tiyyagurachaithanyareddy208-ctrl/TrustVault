@@ -1,0 +1,3 @@
+# TrustVault Secure Document Vault
+User-agent: *
+Disallow: /

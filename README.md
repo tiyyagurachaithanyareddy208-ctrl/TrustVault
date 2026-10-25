@@ -2,6 +2,8 @@
 
 **Secure Document Sharing Platform with Verifiable Cryptographic Audit Trails**
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/tiyyagurachaithanyareddy208-ctrl/TrustVault)
+
 TrustVault is an enterprise-grade, security-first document management and sharing platform built on zero-trust principles. It delivers strict server-side authorization, cryptographic tamper-evident audit trails, private storage isolation, and non-bypassable administrative boundaries.
 
 ---
