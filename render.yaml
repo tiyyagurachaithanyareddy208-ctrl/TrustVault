@@ -1,0 +1,22 @@
+services:
+  # TrustVault Web Application Service on Render Free Plan
+  - type: web
+    name: trustvault
+    env: node
+    plan: free
+    buildCommand: npm install && npx prisma db push && node scripts/seed.mjs && npm run build
+    startCommand: npm run start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        value: file:./dev.db
+      - key: STORAGE_DRIVER
+        value: local
+      - key: LOCAL_STORAGE_DIR
+        value: ./storage/vault_files
+      - key: MAX_FILE_SIZE_BYTES
+        value: "26214400"
